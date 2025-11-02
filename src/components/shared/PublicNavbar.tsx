@@ -3,13 +3,16 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
-import checkAuthStatus from "@/utility/auth";
+import { UseUser } from "@/Providers/UserProvider";
+import { logOutUser } from "@/utility/logOut";
 
-const {user} = await checkAuthStatus();
+
+
 
 const PublicNavbar = () => {
-  
-   const {role} = user || {role: 'guest'};
+
+  const { user } = UseUser();
+  const role = user?.role || "guest";
 
   const navItems = [
     { href: "#", label: "Consultation" },
@@ -20,8 +23,8 @@ const PublicNavbar = () => {
 
   ];
 
-   if(role === 'ADMIN'){
-    navItems.push({ href: "/dashboard/admin", label: "Admin Dashboard" });
+  if (role === 'ADMIN') {
+    navItems.push({ href: "/admin/dashboard", label: "Admin Dashboard" });
   }
 
 
@@ -46,7 +49,9 @@ const PublicNavbar = () => {
 
         <div className="hidden md:flex items-center space-x-2">
           {role !== 'guest' ? (
-            <Button variant="destructive">Logout</Button>
+            <Button variant="destructive" onClick={() => {
+              logOutUser()
+            }}>Logout</Button>
           ) : (
             <Link href="/login" className="text-lg font-medium">
               <Button>Login</Button>
@@ -59,7 +64,7 @@ const PublicNavbar = () => {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline"> <Menu/> </Button>
+              <Button variant="outline"> <Menu /> </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px] p-4">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
@@ -73,10 +78,12 @@ const PublicNavbar = () => {
                     {link.label}
                   </Link>
                 ))}
-               <div className="border-t pt-4 flex flex-col space-y-4">
+                <div className="border-t pt-4 flex flex-col space-y-4">
                   <div className="flex justify-center"></div>
-                  {role!== 'guest' ? (
-                    <Button variant="destructive">Logout</Button>
+                  {role !== 'guest' ? (
+                    <Button variant="destructive" onClick={() => {
+                      logOutUser()
+                    }}>Logout</Button>
                   ) : (
                     <Link href="/login" className="text-lg font-medium">
                       <Button>Login</Button>

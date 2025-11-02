@@ -2,24 +2,13 @@
 
 import * as React from "react"
 import {
-  IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
   IconSearch,
   IconSettings,
-  IconUsers,
 } from "@tabler/icons-react"
 
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -37,7 +26,7 @@ import checkAuthStatus from "@/utility/auth"
 const {user} = await checkAuthStatus();
 console.log(user)
 
-const {role} = user|| {role: 'guest'};
+
 
  const navMainItems =[
     {
@@ -67,28 +56,11 @@ const {role} = user|| {role: 'guest'};
     // },
   ]
 
-   if(role === 'ADMIN'){
-    navMainItems.push(
-      {
-        title: "Manage Doctors",
-        url: "/dashboard/admin/manage-doctors",
-        icon: IconSettings,
-      },
-      {
-        title: "Manage Patients",
-        url: "/dashboard/admin/manage-patients",
-        icon: IconUsers,
-      }
-    )
-  }
-
- 
-
 const data = {
   user: {
-    name: user?.name,
-    email: user?.email,
-    avatar: user?.profilePhoto,
+    name: '',
+    email: '',
+    avatar: '',
   },
   navMain: navMainItems,
   navSecondary: [
