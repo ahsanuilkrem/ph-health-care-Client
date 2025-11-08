@@ -2,7 +2,7 @@
 export interface userInterface {
   id: string;
   email: string;
-  role: "ADMIN" | "DOCTOR" | "PATIENT";
+  role: "SUPER_ADMIN" | "ADMIN" | "DOCTOR" | "PATIENT";
   exp: number;
   iat: number;
 }
