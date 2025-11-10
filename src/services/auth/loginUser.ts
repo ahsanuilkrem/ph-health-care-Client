@@ -2,10 +2,10 @@
 "use server"
 import z from "zod";
 import { parse } from "cookie";
-import { cookies } from "next/headers";
 import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { redirect } from "next/navigation";
+import { setCookie } from "./tokenHandlers";
 
 const loginValidationZodSchema = z.object({
     email: z.email({
@@ -52,6 +52,8 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             },
         })
 
+        const result = await res.json();
+
         const setCookieHeaders = res.headers.getSetCookie();
 
         if (setCookieHeaders && setCookieHeaders.length > 0) {
@@ -77,9 +79,9 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             throw new Error("Tokens not found in cookies");
         }
 
-        const cookieStore = await cookies();
+        
 
-        cookieStore.set("accessToken", accessTokenObject.accessToken, {
+        await setCookie("accessToken", accessTokenObject.accessToken, {
             secure: true,
             httpOnly: true,
             maxAge: parseInt(accessTokenObject['Max-Age']) || 1000 * 60 * 60,
@@ -87,15 +89,15 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             sameSite: accessTokenObject['SameSite'] || "none",
         });
 
-        cookieStore.set("refreshToken", refreshTokenObject.refreshToken, {
+        await setCookie("refreshToken", refreshTokenObject.refreshToken, {
             secure: true,
             httpOnly: true,
             maxAge: parseInt(refreshTokenObject['Max-Age']) || 1000 * 60 * 60 * 24 * 90,
             path: refreshTokenObject.Path || "/",
             sameSite: refreshTokenObject['SameSite'] || "none",
         });
-        const verifiedToken: JwtPayload | string = jwt.verify(accessTokenObject.accessToken, process.env.JWT_SECRET as string);
 
+        const verifiedToken: JwtPayload | string = jwt.verify(accessTokenObject.accessToken, process.env.JWT_SECRET as string);
         if (typeof verifiedToken === "string") {
             throw new Error("Invalid token");
 
@@ -103,20 +105,28 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
         const userRole: UserRole = verifiedToken.role;
 
+          if (!result.success) {
+            throw new Error(result.message || "Login failed");
+        }
 
         if (redirectTo) {
             const requestedPath = redirectTo.toString();
             if (isValidRedirectForRole(requestedPath, userRole)) {
-                redirect(requestedPath);
+               redirect(`${requestedPath}?loggedIn=true`);
             } else {
-                redirect(getDefaultDashboardRoute(userRole));
+                redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
             }
+        }else{
+           redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`); 
         }
 
         
 
-    } catch (error) {
+    } catch (error:any) {
+         if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+            throw error;
+        }
         console.log(error);
-        return { error: "Login failed" };
+         return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "login Failed. Please try again."}` };
     }
 }

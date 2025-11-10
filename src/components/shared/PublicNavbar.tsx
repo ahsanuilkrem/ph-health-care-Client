@@ -1,18 +1,14 @@
-'use client';
+
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
-import { UseUser } from "@/Providers/UserProvider";
-import { logOutUser } from "@/utility/logOut";
+import { getCookie } from "@/services/auth/tokenHandlers";
+import LogoutButton from "./LogoutButton";
 
 
 
-
-const PublicNavbar = () => {
-
-  const { user } = UseUser();
-  const role = user?.role || "guest";
+const PublicNavbar = async () => {
 
   const navItems = [
     { href: "#", label: "Consultation" },
@@ -23,9 +19,7 @@ const PublicNavbar = () => {
 
   ];
 
-  if (role === 'ADMIN') {
-    navItems.push({ href: "/admin/dashboard", label: "Admin Dashboard" });
-  }
+  const accessToken = await getCookie("accessToken");
 
 
   return (
@@ -48,7 +42,7 @@ const PublicNavbar = () => {
         </nav>
 
         <div className="hidden md:flex items-center space-x-2">
-          {role !== 'guest' ? (
+          {/* {role !== 'guest' ? (
             <Button variant="destructive" onClick={() => {
               logOutUser()
             }}>Logout</Button>
@@ -56,7 +50,16 @@ const PublicNavbar = () => {
             <Link href="/login" className="text-lg font-medium">
               <Button>Login</Button>
             </Link>
+          )} */}
+
+          {accessToken ? (
+            <LogoutButton />
+          ) : (
+            <Link href="/login">
+              <Button>Login</Button>
+            </Link>
           )}
+
         </div>
 
         {/* Mobile Menu */}
@@ -80,12 +83,19 @@ const PublicNavbar = () => {
                 ))}
                 <div className="border-t pt-4 flex flex-col space-y-4">
                   <div className="flex justify-center"></div>
-                  {role !== 'guest' ? (
+                  {/* {role !== 'guest' ? (
                     <Button variant="destructive" onClick={() => {
                       logOutUser()
                     }}>Logout</Button>
                   ) : (
                     <Link href="/login" className="text-lg font-medium">
+                      <Button>Login</Button>
+                    </Link>
+                  )} */}
+                  {accessToken ? (
+                    <LogoutButton />
+                  ) : (
+                    <Link href="/login">
                       <Button>Login</Button>
                     </Link>
                   )}
