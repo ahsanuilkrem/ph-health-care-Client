@@ -4,9 +4,6 @@
 // import { jwtDecode } from "jwt-decode";
 // import { userInterface } from "./types/userTypes";
 
-
-
-
 // const roleBasedRoutes = {
 //   ADMIN: ["/admin/dashboard",],
 //   DOCTOR: ["/doctor/dashboard"],
@@ -104,17 +101,17 @@
 // };
 
 
+
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getDefaultDashboardRoute, getRouteOwner, isAuthRoute, UserRole } from './lib/auth-utils';
-import { deleteCookie, getCookie } from './services/auth/tokenHandlers';
+import { deleteCookie, getCookie } from './src/services/auth/tokenHandlers';
+import { getDefaultDashboardRoute, getRouteOwner, isAuthRoute, UserRole } from '@/lib/auth-utils';
 
 
 
 // This function can be marked `async` if using `await` inside
 export async function proxy(request: NextRequest) {
-    // const cookieStore = await cookies()
     const pathname = request.nextUrl.pathname;
 
     // const accessToken = request.cookies.get("accessToken")?.value || null;
@@ -123,13 +120,12 @@ export async function proxy(request: NextRequest) {
 
     let userRole: UserRole | null = null;
     if (accessToken) {
-        const verifiedToken: JwtPayload | string = jwt.verify(accessToken, process.env.JWT_SECRET as string);
+        // const verifiedToken: JwtPayload | string = jwt.verify(accessToken, process.env.JWT_SECRET as string);
+         const verifiedToken: JwtPayload | string = jwt.verify(accessToken, "asdfasdfasdf");
 
         if (typeof verifiedToken === "string") {
-            // cookieStore.delete("accessToken");
-            // cookieStore.delete("refreshToken");
-           await deleteCookie("accessToken");
-           await deleteCookie("refreshToken")
+            await deleteCookie("accessToken");
+            await deleteCookie("refreshToken");
             return NextResponse.redirect(new URL('/login', request.url));
         }
 
@@ -173,7 +169,6 @@ export async function proxy(request: NextRequest) {
             return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url))
         }
     }
-    console.log(userRole);
 
     return NextResponse.next();
 }
