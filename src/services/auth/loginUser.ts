@@ -1,22 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server"
-import z from "zod";
+
 import { parse } from "cookie";
 import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { redirect } from "next/navigation";
 import { setCookie } from "./tokenHandlers";
+import { serverFetch } from "@/lib/server-fetch";
+import { zodValidator } from "@/lib/zodValidator";
+import { loginValidationZodSchema } from "@/zod/auth.validation";
 
-const loginValidationZodSchema = z.object({
-    email: z.email({
-        message: "Email is required",
-    }),
-    password: z.string("Password is required").min(6, {
-        error: "Password is required and must be at least 6 characters long",
-    }).max(100, {
-        error: "Password must be at most 100 characters long",
-    }),
-});
+
 
 export const loginUser = async (_currentState: any, formData: any): Promise<any> => {
     try {
@@ -25,31 +19,22 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
         let accessTokenObject: null | any = null;
         let refreshTokenObject: null | any = null;
 
-        const loginData = {
+        const payload = {
             email: formData.get('email'),
             password: formData.get('password'),
         }
-
-        const validatedFields = loginValidationZodSchema.safeParse(loginData);
-
-        if (!validatedFields.success) {
-            return {
-                success: false,
-                errors: validatedFields.error.issues.map(issue => {
-                    return {
-                        field: issue.path[0],
-                        message: issue.message,
-                    }
-                })
-            }
+        if (zodValidator(payload, loginValidationZodSchema).success === false) {
+            return zodValidator(payload, loginValidationZodSchema);
         }
 
-        const res = await fetch("http://localhost:5000/api/v1/auth/login", {
-            method: "POST",
-            body: JSON.stringify(loginData),
+        const validatedPayload = zodValidator(payload, loginValidationZodSchema).data;
+
+        const res = await serverFetch.post("/auth/login", {
+
+            body: JSON.stringify(validatedPayload),
             headers: {
-                "Content-Type": "application/json",
-            },
+                "Content-Type": "application/json",       
+            }
         })
 
         const result = await res.json();
@@ -79,7 +64,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             throw new Error("Tokens not found in cookies");
         }
 
-        
+
 
         await setCookie("accessToken", accessTokenObject.accessToken, {
             secure: true,
@@ -105,28 +90,28 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
         const userRole: UserRole = verifiedToken.role;
 
-          if (!result.success) {
+        if (!result.success) {
             throw new Error(result.message || "Login failed");
         }
 
         if (redirectTo) {
             const requestedPath = redirectTo.toString();
             if (isValidRedirectForRole(requestedPath, userRole)) {
-               redirect(`${requestedPath}?loggedIn=true`);
+                redirect(`${requestedPath}?loggedIn=true`);
             } else {
                 redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
             }
-        }else{
-           redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`); 
+        } else {
+            redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
         }
 
-        
 
-    } catch (error:any) {
-         if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+
+    } catch (error: any) {
+        if (error?.digest?.startsWith('NEXT_REDIRECT')) {
             throw error;
         }
         console.log(error);
-         return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "login Failed. Please try again."}` };
+        return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "login Failed. Please try again."}` };
     }
 }

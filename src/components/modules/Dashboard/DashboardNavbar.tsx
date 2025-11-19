@@ -6,6 +6,9 @@ import { getNavItemsByRole } from "@/lib/navItems.config";
 
 const DashboardNavbar = async () => {
   const userInfo = (await getUserInfo()) as UserInfo;
+     if (!userInfo) {
+    return <div>No user session found</div>; 
+  }
   const navItems = getNavItemsByRole(userInfo.role);
   const dashboardHome = getDefaultDashboardRoute(userInfo.role);
 

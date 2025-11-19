@@ -1,4 +1,4 @@
-export type UserRole ="SUPER_ADMIN" | "ADMIN" | "DOCTOR" | "PATIENT";
+export type UserRole = "SUPER_ADMIN" | "ADMIN" | "DOCTOR" | "PATIENT";
 
 // exact : ["/my-profile", "settings"]
 //   patterns: [/^\/dashboard/, /^\/patient/], // Routes starting with /dashboard/* /patient/*

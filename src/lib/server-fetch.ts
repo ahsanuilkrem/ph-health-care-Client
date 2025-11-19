@@ -13,7 +13,7 @@ const serverFetchHelper = async (endpoint: string, options: RequestInit): Promis
         headers: {
             ...headers,
             // ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {}),
-            // ...(accessToken ? { "Authorization": accessToken } : {}),
+            //  ...(accessToken ? { "Authorization": accessToken } : {}),
             Cookie: accessToken ? `accessToken=${accessToken}` : "",
         },
         ...restOptions,
