@@ -1,30 +1,24 @@
 "use client";
 
 import ManagementPageHeader from "@/components/shared/ManagementPageHeader";
-import { ISpecialty } from "@/types/specialities.interface";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import DoctorFormDialog from "./DoctorFormDialog";
+import AdminFormDialog from "./AdminFormDialog";
 
-
-interface DoctorsManagementHeaderProps {
-  specialities?: ISpecialty[];
-}
-
-const DoctorsManagementHeader = ({
-  specialities,
-}: DoctorsManagementHeaderProps) => {
+const AdminsManagementHeader = () => {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogKey, setDialogKey] = useState(0);
 
   const handleSuccess = () => {
     startTransition(() => {
       router.refresh();
     });
   };
+
+  //force remount to reset state of form
+  const [dialogKey, setDialogKey] = useState(0);
 
   const handleOpenDialog = () => {
     setDialogKey((prev) => prev + 1); // Force remount
@@ -35,22 +29,20 @@ const DoctorsManagementHeader = ({
     setIsDialogOpen(false);
   };
 
-
   return (
     <>
-      <DoctorFormDialog
+      <AdminFormDialog
         key={dialogKey}
         open={isDialogOpen}
         onClose={handleCloseDialog}
         onSuccess={handleSuccess}
-        specialities={specialities}
       />
 
       <ManagementPageHeader
-        title="Doctors Management"
-        description="Manage Doctors information and details"
+        title="Admins Management"
+        description="Manage admin accounts and permissions"
         action={{
-          label: "Add Doctor    ",
+          label: "Add Admin",
           icon: Plus,
           onClick: handleOpenDialog,
         }}
@@ -59,4 +51,4 @@ const DoctorsManagementHeader = ({
   );
 };
 
-export default DoctorsManagementHeader;
+export default AdminsManagementHeader;

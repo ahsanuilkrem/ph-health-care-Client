@@ -1,10 +1,11 @@
-import { DoctorTable } from "@/components/modules/Dashboard/ManageDoctor/DoctorTable";
+
+
 
 
 const manageDoctorPage = () => {
     return (
         <>
-            <DoctorTable/>
+            <h1>fhr</h1>
         </>
     );
 };
