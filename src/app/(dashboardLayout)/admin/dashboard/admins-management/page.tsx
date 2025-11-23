@@ -30,7 +30,6 @@ const AdminAdminsManagementPage = async ({
 
       <Suspense fallback={<TableSkeleton columns={8} rows={10} />}>
         <AdminsTable admins={adminsResult?.data || []} />
-        console.log(admins);
         <TablePagination
           currentPage={adminsResult?.meta?.page || 1}
           totalPages={totalPages || 1}
