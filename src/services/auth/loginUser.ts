@@ -33,7 +33,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
             body: JSON.stringify(validatedPayload),
             headers: {
-                "Content-Type": "application/json",       
+                "Content-Type": "application/json",
             }
         })
 
@@ -92,6 +92,19 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
         if (!result.success) {
             throw new Error(result.message || "Login failed");
+        }
+
+        if (redirectTo && result.data.needPasswordChange) {
+            const requestedPath = redirectTo.toString();
+            if (isValidRedirectForRole(requestedPath, userRole)) {
+                redirect(`/reset-password?redirect=${requestedPath}`);
+            } else {
+                redirect("/reset-password");
+            }
+        }
+
+        if (result.data.needPasswordChange) {
+            redirect("/reset-password");
         }
 
         if (redirectTo) {

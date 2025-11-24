@@ -92,6 +92,9 @@ function ManagementTable<T>({
     );
   };
 
+const safeData = Array.isArray(data) ? data : [];
+// console.log("data", data)
+// console.log("safeData", safeData)
 
 
   return (
@@ -133,7 +136,7 @@ function ManagementTable<T>({
           </TableHeader>
 
           <TableBody>
-            {data.length === 0 ? (
+            {safeData.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length + (hasActions ? 1 : 0)}
@@ -143,7 +146,7 @@ function ManagementTable<T>({
                 </TableCell>
               </TableRow>
             ) : (
-              data?.map((item) => (
+              safeData?.map((item) => (
                 <TableRow key={getRowKey(item)}>
                   {columns.map((col, idx) => (
                     <TableCell key={idx} className={col.className}>
