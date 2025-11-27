@@ -57,7 +57,7 @@ export default function BookScheduleDialog({
       setLoadingSchedules(true);
       const response = await getAvailableSchedules();
       console.log("response:", response);
-      setAvailableSchedules(response?.data.data || []);
+      setAvailableSchedules(response?.data || []);
     } catch (error) {
       console.error("Error loading schedules:", error);
       toast.error("Failed to load available schedules");
