@@ -8,6 +8,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 interface SearchFilterProps {
   placeholder?: string;
   paramName?: string;
+  defaultValue?: string;
 }
 
 const SearchFilter = ({
